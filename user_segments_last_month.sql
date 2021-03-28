@@ -33,13 +33,13 @@ from base
 group by 1,2
 )
 
-, active_last_30d as (
+, active_last_month as (
 select 
     employee_id, 
     count(distinct x_id) as x_activity
 from table_name
-where completed_at >= date_trunc('day', now() - interval '30 days')
-and completed_at < date_Trunc('day', now())
+where completed_at >= date_trunc('month', now() - interval '1 month')
+and completed_at < date_Trunc('month', now())
 group by 1
 )
 
@@ -74,7 +74,7 @@ from (
         count(distinct employee_id) as employees, 
         sum(x_activity) activity_total 
     from final 
-    join active_last_30d 
+    join active_last_month 
     using (employee_id)
     group by 1
 ) a
