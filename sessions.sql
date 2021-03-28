@@ -26,7 +26,7 @@ FROM
             FROM
               ( SELECT employee_id,
                        date_trunc('min', logged_at::TIMESTAMP) AS log_minute
-               FROM app_analytics
+               FROM app_events_log
                WHERE logged_at >= date_Trunc('month', now() - interval '12 months')
                GROUP BY 1,
                         2 ) b ) a ) a ) b) c
