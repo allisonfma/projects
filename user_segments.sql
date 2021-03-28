@@ -12,8 +12,7 @@ from (
             employee_id,
             row_number() over(partition by employee_id order by completed_at) as x, 
             extract(epoch from completed_at)::float/86400.0 as y
-        from transfers 
-        where completed_at is not null
+        from table_name
         ) z
     ) zz
 ) 
@@ -34,21 +33,13 @@ from base
 group by 1,2
 )
 
-, transfer_lifetime as (
-select
-    employee_id, 
-    count(distinct transfer_id) as transfers
-from transfers
-where completed_at is not null
-group by 1
-)
-
-, active_last_month as (
+, active_last_30d as (
 select 
-    employee_id
-from transfers
-where completed_at >= date_trunc('month', now() - interval '1 month')
-and completed_at < date_Trunc('month', now())
+    employee_id, 
+    count(distinct x_id) as x_activity
+from table_name
+where completed_at >= date_trunc('day', now() - interval '30 days')
+and completed_at < date_Trunc('day', now())
 group by 1
 )
 
@@ -75,17 +66,15 @@ select
 
 select 
     *, 
-    transfer_amount::float/transfers as avg_amount_per_transfer,
-    transfer_amount::float/employees as avg_amount_per_employee,
-    transfers::float/employees as avg_transfers_per_employee
+    activity_total::float/employees as avg_activity_per_employee
 from (
     select 
         grouping,
         sum(net_amount::float/100) as transfer_amount, 
         count(distinct employee_id) as employees, 
-        count(distinct transfer_id) as transfers 
+        sum(x_activity) activity_total 
     from final 
-    join transfers 
+    join active_last_30d 
     using (employee_id)
     group by 1
 ) a
