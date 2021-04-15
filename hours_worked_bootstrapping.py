@@ -55,3 +55,9 @@ exp_sample = create_sample_distribution(exp)
 
 sns.distplot(ctrl_sample)
 sns.distplot(exp_sample)
+
+#are variances equal?
+print(np.var(control) == np.var(exp))
+
+#set equal_var to False to perform Welch's t-test
+print(stat.ttest_ind(ctrl_sample, exp_sample, equal_var=False))
